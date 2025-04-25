@@ -83,7 +83,7 @@ files = os.listdir(r"C:\Users\jjtsu\OneDrive\Desktop\Indenter\ASMI-main") #chang
 
 godirect = GoDirect(use_ble=True, use_usb=True)
 device = godirect.get_device(threshold=-100)
-lowest = -1
+lowest = -11
 height_offset = 26.38
 
 
@@ -624,8 +624,8 @@ if __name__ == "__main__":
     y = {"1": "", "2": "", "3": "", "4": "", "5": "", "6": "", "7": "", "8": "", "9": "", "10": "", "11": "", "12": ""}
     z_up = "-2.50"
     height_offset = 26.38  # set starting distance between indenter and wells
-    h_speed = "500"  # speed sensor moves between wells
-    v_speed = "100"  # speed sensor moves while testing sample
+    h_speed = "100"  # speed sensor moves between wells
+    v_speed = "50"  # speed sensor moves while testing sample
     x_init = 0  # set position of well A1
     y_init = 0  # set position of well A1
     x_offset = -100  # set distance between wells
@@ -974,20 +974,20 @@ if __name__ == "__main__":
         gcode = f"G01 Z{-z+Z} F{v_speed}"
         move_gcode(GRBL_port_path, gcode, home, X, Y, Z) #move sensor back up
         curr_x = X
-        #print(f"curr_X: {curr_x}")
+        print(f"curr_X: {curr_x}")
         curr_y = Y
-        #print(f"curr_Y: {curr_y}")
+        print(f"curr_Y: {curr_y}")
         #Save measurements to csv, probably do in function so depth values can be added
         #Analysis
         data = load_csv(filename) #analyzes data from last well that was tested
-        # print(data)
+        print(data)
         cols = ["A", "B", "C", "D", "E", "F", "G", "H"]
         rows = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
         well = wells[n]
         run_array = collect_run_data(data, well, stiff) #get data for specified well
         if run_array != []:
             well_data = run_array
-            # print(run_array)
+            print(run_array)
             height = approximate_height(run_array)
             depths, forces = split(run_array)
             # pyplot.scatter(depths, forces)
@@ -997,8 +997,8 @@ if __name__ == "__main__":
             well_depths = depths
             well_forces = forces
             depth_in_range, force_in_range = find_d_and_f_in_range(run_array)
-            # print(depth_in_range)
-            # print(force_in_range)
+            print(depth_in_range)
+            print(force_in_range)
             p_ratio = p_ratios[n]
             adjusted_forces = correct_force(depth_in_range, force_in_range, p_ratio, height)
             # print(adjusted_forces)

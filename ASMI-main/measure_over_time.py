@@ -82,16 +82,16 @@ logging.basicConfig()
 
 BAUD_RATE = 115200
 GRBL_port_path = "COM3" #"/dev/ttyUSB0"
-x_init = 85.7  # set position of well A1
-y_init = 56.9  # set position of well A1
-offset = 8.95  # set distance between wells
-files = os.listdir("C:\Users\jjtsu\OneDrive\Desktop\Indenter\ASMI-main") #change to correct directory for your device!!!
+x_init = 0  # set position of well A1
+y_init = 0  # set position of well A1
+offset = 0  # set distance between wells
+files = os.listdir(r"C:\Users\jjtsu\OneDrive\Desktop\Indenter\ASMI-main") #change to correct directory for your device!!!
 
 
 godirect = GoDirect(use_ble=True, use_usb=True)
 device = godirect.get_device(threshold=-100)
 lowest = -11
-height_offset = 4
+height_offset = 17.7
 
 def remove_comment(string):
     if (string.find(';') == -1):
@@ -628,7 +628,7 @@ if __name__ == "__main__":
     x = {"A": "", "B": "", "C": "", "D": "", "E": "", "F": "", "G": "", "H": ""}
     y = {"1": "", "2": "", "3": "", "4": "", "5": "", "6": "", "7": "", "8": "", "9": "", "10": "", "11": "", "12": ""}
     z_up = "-2.50"
-    height_offset = 4  # set starting distance between indenter and wells
+    height_offset = 17.7  # set starting distance between indenter and wells
     # y_disp = 0.1 #well plate is not precisely aligned, should get fixed in future iterations
     h_speed = "500"  # speed sensor moves between wells
     v_speed = "100"  # speed sensor moves while testing sample

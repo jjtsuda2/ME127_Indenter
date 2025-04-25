@@ -88,8 +88,8 @@ files = os.listdir(r"C:\Users\jjtsu\OneDrive\Desktop\Indenter\ASMI-main") #chang
 
 godirect = GoDirect(use_ble=True, use_usb=True)
 device = godirect.get_device(threshold=-100)
-lowest = -1
-height_offset = 28.38
+lowest = -11
+height_offset = 4
 
 
 def remove_comment(string):
@@ -627,10 +627,10 @@ if __name__ == "__main__":
     x = {"A": "", "B": "", "C": "", "D": "", "E": "", "F": "", "G": "", "H": ""}
     y = {"1": "", "2": "", "3": "", "4": "", "5": "", "6": "", "7": "", "8": "", "9": "", "10": "", "11": "", "12": ""}
     z_up = "-2.50"
-    height_offset = 28.38  # set starting distance between indenter and wells as measured from top of wells to bottom of indenter at z = 0
+    height_offset = 4  # set starting distance between indenter and wells as measured from top of wells to bottom of indenter at z = 0
     # y_disp = 0.1 #well plate is not precisely aligned, should get fixed in future iterations
-    h_speed = "500"  # speed sensor moves between wells
-    v_speed = "100"  # speed sensor moves while testing sample
+    h_speed = "100"  # speed sensor moves between wells
+    v_speed = "50"  # speed sensor moves while testing sample
     results = []
 
     for i in range(0, 8):  # load x values into x dictionairy
