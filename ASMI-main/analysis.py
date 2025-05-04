@@ -10,7 +10,7 @@ import matplotlib.pyplot as pyplot
 from scipy.optimize import curve_fit
 import os
 
-files = os.listdir("/home/robot/ASMI_KABlab") #change to correct directory for your device!!!
+files = os.listdir(r"C:\Users\jjtsu\OneDrive\Desktop\Indenter\ASMI-main") #change to correct directory for your device!!!
 
 
 def load_csv(): #load data from csv file

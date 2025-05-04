@@ -88,8 +88,8 @@ files = os.listdir(r"C:\Users\jjtsu\OneDrive\Desktop\Indenter\ASMI-main") #chang
 
 godirect = GoDirect(use_ble=True, use_usb=True)
 device = godirect.get_device(threshold=-100)
-lowest = -11
-height_offset = 4
+lowest = -7
+height_offset = 2
 
 
 def remove_comment(string):
@@ -140,7 +140,7 @@ def wait_for_movement_completion(ser, cleaned_line):
 
 
 def move_gcode(GRBL_port_path, gcode, home, x, y, z): #used to move CNC to one particular (x, y, z) location
-    # with contect opens file/connection and closes it if function(with) scope is left
+    # with contact opens file/connection and closes it if function(with) scope is left
     with serial.Serial(GRBL_port_path, BAUD_RATE) as ser:
         send_wake_up(ser)
         cleaned_line = remove_eol_chars(remove_comment(gcode))
@@ -174,6 +174,7 @@ def move_gcode(GRBL_port_path, gcode, home, x, y, z): #used to move CNC to one p
             csvwriter.writerow(position)
 
 def get_start_stats(well, filename): #used to take baseline force measurements before testing each well
+    print("get_start_stats")
     measurements = []
     device.start()
     sensors = device.get_enabled_sensors()
@@ -233,7 +234,7 @@ def stream_gcode(GRBL_port_path, gcode, x, y, well, filename): #used to indent a
                 ##print(z_max)
                 measurements.append(value * -1)
                 if z == z_max or value <= -45: #exit conditions for testing well
-                    if value <= -45 and len(measurements) <= 30: #force too high, threshold lower than max force for sensor to prevent taking another step
+                    if value <= -30 and len(measurements) <= 30: #force too high, threshold lower than max force for sensor to prevent taking another step
                         print("Sample too stiff to analyze")
                         stiff = True
                     return measurements, z, stiff
@@ -627,10 +628,10 @@ if __name__ == "__main__":
     x = {"A": "", "B": "", "C": "", "D": "", "E": "", "F": "", "G": "", "H": ""}
     y = {"1": "", "2": "", "3": "", "4": "", "5": "", "6": "", "7": "", "8": "", "9": "", "10": "", "11": "", "12": ""}
     z_up = "-2.50"
-    height_offset = 4  # set starting distance between indenter and wells as measured from top of wells to bottom of indenter at z = 0
+    height_offset = 2  # set starting distance between indenter and wells as measured from top of wells to bottom of indenter at z = 0
     # y_disp = 0.1 #well plate is not precisely aligned, should get fixed in future iterations
     h_speed = "100"  # speed sensor moves between wells
-    v_speed = "50"  # speed sensor moves while testing sample
+    v_speed = "10"  # speed sensor moves while testing sample
     results = []
 
     for i in range(0, 8):  # load x values into x dictionairy
@@ -830,15 +831,21 @@ if __name__ == "__main__":
             gcode = f"G01 X{new_X} Y{new_Y} Z{z_int} F{h_speed}"
         else:
             gcode = f"G01 X{new_X} Y{new_Y} F{h_speed}"
+        print("move_gcode 1")
         move_gcode(GRBL_port_path, gcode, home, X, Y, Z) #move well to x y position of well
+        print("move_gcode 1 is done")
         gcode = []
         z = -0.02
+
         while z >= lowest+1: #generate gcode to move well down
             gcode.append(f"G01 Z{z} F{v_speed}")
             z = round(z-0.02, 2)
         measurements, z, stiff = stream_gcode(GRBL_port_path, gcode, X, Y, well, filename) #test well
+        print("stream_gcode is done.")
         gcode = f"G01 Z{-z+Z} F{v_speed}"
+        print("move_gcode 2")
         move_gcode(GRBL_port_path, gcode, home, X, Y, Z) #move sensor back up
+        print("move_gcode 2 is done")
         curr_x = X #set new x position
         #print(f"curr_X: {curr_x}")
         curr_y = Y #set new y position
@@ -855,18 +862,18 @@ if __name__ == "__main__":
             # print(run_array)
             height = approximate_height(run_array)
             depths, forces = split(run_array)
-            # pyplot.scatter(depths, forces)
-            # pyplot.show()
-            # print(depths)
-            # print(forces)
+            pyplot.scatter(depths, forces)
+            pyplot.show()
+            print(depths)
+            print(forces)
             well_depths = depths
             well_forces = forces
             depth_in_range, force_in_range = find_d_and_f_in_range(run_array)
-            # print(depth_in_range)
-            # print(force_in_range)
+            print(depth_in_range)
+            print(force_in_range)
             p_ratio = p_ratios[n]
             adjusted_forces = correct_force(depth_in_range, force_in_range, p_ratio, height)
-            # print(adjusted_forces)
+            print(adjusted_forces)
             depth_in_range = np.asarray(depth_in_range)
             adjusted_forces = np.asarray(adjusted_forces)
 
@@ -882,22 +889,22 @@ if __name__ == "__main__":
                 error = True
             else:
 
-                # print(depth_in_range)
-                # print(force_in_range)
+                print(depth_in_range)
+                print(force_in_range)
 
                 fit_A = float(parameters[0])
                 fit_d0 = float(parameters[1])
-                # print(fit_A)
-                # print(fit_d0)
-                # pyplot.scatter(depth_in_range, adjusted_forces)
-                # y_var = []
-                # for i in range(0, len(depth_in_range)):
-                # y_var.append(fit_A * pow(depth_in_range[i], 1.5))
-                # pyplot.plot(depth_in_range, y_var)
-                # pyplot.xlabel("Depth (mm)")
-                # pyplot.ylabel("Force (N)")
-                # pyplot.title("Force vs. Indentation Depth")
-                # pyplot.show()
+                print(fit_A)
+                print(fit_d0)
+                pyplot.scatter(depth_in_range, adjusted_forces)
+                y_var = []
+                for i in range(0, len(depth_in_range)):
+                    y_var.append(fit_A * pow(depth_in_range[i], 1.5))
+                pyplot.plot(depth_in_range, y_var)
+                pyplot.xlabel("Depth (mm)")
+                pyplot.ylabel("Force (N)")
+                pyplot.title("Force vs. Indentation Depth")
+                pyplot.show()
 
                 count = 0 #adjust if approximate initial depth was incorrect
                 continue_to_adjust = True
@@ -924,20 +931,20 @@ if __name__ == "__main__":
                     else:
                         fit_A = float(parameters[0])
                         fit_d0 = float(parameters[1])
-                        # print(fit_A)
-                        # print(fit_d0)
+                        print(fit_A)
+                        print(fit_d0)
                         if abs(fit_d0) < min_d0:
                             min_d0 = abs(fit_d0)
-                        # print(f"min {min_d0}")
-                        # pyplot.scatter(depth_in_range, adjusted_forces)
-                        # y_var = []
-                        # for i in range(0, len(depth_in_range)):
-                        # y_var.append(fit_A * pow(depth_in_range[i], 1.5))
-                        # pyplot.plot(depth_in_range, y_var)
-                        # pyplot.xlabel("Depth (mm)")
-                        # pyplot.ylabel("Force (N)")
-                        # pyplot.title("Force vs. Indentation Depth")
-                        # pyplot.show()
+                        print(f"min {min_d0}")
+                        pyplot.scatter(depth_in_range, adjusted_forces)
+                        y_var = []
+                        for i in range(0, len(depth_in_range)):
+                            y_var.append(fit_A * pow(depth_in_range[i], 1.5))
+                        pyplot.plot(depth_in_range, y_var)
+                        pyplot.xlabel("Depth (mm)")
+                        pyplot.ylabel("Force (N)")
+                        pyplot.title("Force vs. Indentation Depth")
+                        pyplot.show()
                         if abs(round(old_d0, 5)) == abs(round(fit_d0, 5)): #if fit continues to converge to improper value
                             fit_d0 = -0.75 * fit_d0
                         elif abs(fit_d0) < 0.01:
@@ -967,7 +974,7 @@ if __name__ == "__main__":
                 # print(covariance[0][0])
                 std_dev = round(find_E(err[0], p_ratio))
                 ##(std_dev)
-                row = [wells[n], E, std_dev]
+                row = [wells[n], E, std_dev, max(forces), max(depths)]
                 results.append(row)
                 print(f"Well {wells[n]}: E = {E} N/m^2, Uncertainty = {std_dev} N/m^2")
                 with open(results_filename, 'a') as csvfile: #save results to file
@@ -988,9 +995,13 @@ if __name__ == "__main__":
 
 
     home = True
-    gcode = f"G01 X0 Y0 Z0 F500"
-    ##print(f"G01 X0 Y0 Z0 F500")
-    move_gcode(GRBL_port_path, gcode, home, round(curr_x, 2), round(curr_y, 2), round(Z, 2)) #return CNC to home position
+
     print("Here are the results:")
     for l in range(0, len(results)): #dipslay results
         print(f"Well {results[l][0]}: E = {results[l][1]} N/m^2, Uncertainty = {results[l][2]} N/m^2")
+        
+    gcode = f"G01 X0 Y0 Z0 F500"
+    ##print(f"G01 X0 Y0 Z0 F500")
+    print("move_gcode 3")
+    move_gcode(GRBL_port_path, gcode, home, round(curr_x, 2), round(curr_y, 2), round(Z, 2)) #return CNC to home position
+    print("move_gcode 3 is done")
