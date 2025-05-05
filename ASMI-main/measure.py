@@ -88,7 +88,7 @@ files = os.listdir(r"C:\Users\jjtsu\OneDrive\Desktop\Indenter\ASMI-main") #chang
 
 godirect = GoDirect(use_ble=True, use_usb=True)
 device = godirect.get_device(threshold=-100)
-lowest = -7
+lowest = -8
 height_offset = 2
 
 
@@ -883,6 +883,7 @@ if __name__ == "__main__":
                 return F
 
             try: #fit data to Hertzian contact mechanics
+                print("trying Hertzian contact mechanics")
                 parameters, covariance = curve_fit(Hertz_func, depth_in_range, adjusted_forces, p0=[2, 0.03])
             except:
                 print("Data could not be analyzed")
